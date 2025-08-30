@@ -1,0 +1,66 @@
+{% extends "registration/base.html" %}
+{% load static %}
+
+{% block title %}Solicitações de Retirada{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Solicitações de Retirada</h3>
+</div>
+
+{% if messages %}
+  {% for m in messages %}
+    <div class="alert alert-{{ m.tags|default:'info' }}">{{ m }}</div>
+  {% endfor %}
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th class="text-center">Quantidade</th>
+          <th>Solicitante</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for retirada in retiradas %}
+          <tr>
+            <td>{{ retirada.id }}</td>
+            <td>{{ retirada.produto.nome }}</td>
+            <td class="text-center">{{ retirada.quantidade }}</td>
+            <td>{{ retirada.solicitante.username }}</td>
+            <td>{{ retirada.data_retirada|date:"d/m/Y H:i" }}</td>
+            <td>
+              {% if retirada.status == "PENDENTE" %}
+                <span class="badge bg-warning text-dark">Pendente</span>
+              {% elif retirada.status == "APROVADA" %}
+                <span class="badge bg-success">Aprovada</span>
+              {% else %}
+                <span class="badge bg-danger">Recusada</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if retirada.status == "PENDENTE" %}
+                <a href="{% url 'estoque:aprovar_retirada' retirada.id %}" class="btn btn-sm btn-success">Aprovar</a>
+                <a href="{% url 'estoque:negar_retirada' retirada.id %}" class="btn btn-sm btn-danger">Recusar</a>
+              {% else %}
+                —
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-4">Nenhuma solicitação encontrada.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "registration/base.html" %}
+{% load static %}
+
+{% block title %}Solicitar Retirada{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Solicitação de Retirada de EPI</h3>
+</div>
+
+{% if messages %}
+  {% for m in messages %}
+    <div class="alert alert-{{ m.tags|default:'info' }}">{{ m }}</div>
+  {% endfor %}
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post" action="{% url 'estoque:solicitar_retirada' %}" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="produto" class="form-label">Produto (EPI)</label>
+        <select id="produto" class="form-select" name="produto_id" required>
+          {% for produto in produtos %}
+            <option value="{{ produto.id }}"
+                    data-estoque="{{ produto.estoque_fisico|default:0 }}"
+                    {% if produto.estoque_fisico|default:0 <= 0 %}disabled{% endif %}>
+              {{ produto.nome }} (Estoque: {{ produto.estoque_fisico|default:0 }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="quantidade" class="form-label">Quantidade</label>
+        <input id="quantidade" name="quantidade" type="number" class="form-control"
+               min="1" required autocomplete="off">
+        <div class="form-text" id="estoque-info"></div>
+      </div>
+
+      <div class="mb-3">
+        <label for="observacao" class="form-label">Observação (opcional)</label>
+        <textarea id="observacao" class="form-control" name="observacao" rows="3"></textarea>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'estoque:dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Solicitar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const sel = document.getElementById('produto');
+    const qty = document.getElementById('quantidade');
+    const info = document.getElementById('estoque-info');
+
+    function atualizarLimite() {
+      const est = parseInt(sel.options[sel.selectedIndex]?.dataset.estoque || '0', 10);
+      qty.max = Math.max(est, 1);
+      info.textContent = 'Estoque disponível: ' + est;
+    }
+    sel.addEventListener('change', atualizarLimite);
+    atualizarLimite();
+  })();
+</script>
+{% endblock %}

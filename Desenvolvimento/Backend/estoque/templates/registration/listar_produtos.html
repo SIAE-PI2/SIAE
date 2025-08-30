@@ -1,0 +1,51 @@
+{% extends "registration/base.html" %}
+{% load static %}
+
+{% block title %}Produtos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">📦 Produtos</h3>
+  {% if request.user.is_superuser %}
+    <a href="{% url 'estoque:cadastrar_produto' %}" class="btn btn-primary">+ Novo Produto</a>
+  {% endif %}
+</div>
+
+{% if produtos %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Produto</th>
+            <th class="text-center">Estoque</th>
+            <th class="text-center">Mín.</th>
+            <th class="text-end">Preço</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in produtos %}
+            <tr>
+              <td>{{ p.nome }}</td>
+              <td class="text-center">
+                {{ p.estoque_fisico|default:0 }}
+                {% if p.estoque_minimo and p.estoque_fisico <= p.estoque_minimo %}
+                  <span class="badge bg-danger ms-2">Crítico</span>
+                {% endif %}
+              </td>
+              <td class="text-center">{{ p.estoque_minimo|default:"—" }}</td>
+              <td class="text-end">
+                {% if p.preco_unitario is not None %}
+                  R$ {{ p.preco_unitario|floatformat:2 }}
+                {% else %}—{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info">Nenhum produto encontrado.</div>
+{% endif %}
+{% endblock %}

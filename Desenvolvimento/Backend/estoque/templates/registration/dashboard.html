@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sistema de Estoque{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background-color: #343a40; color: white; }
+        .sidebar a { color: white; display: block; padding: 15px; text-decoration: none; }
+        .sidebar a:hover { background-color: #495057; }
+        .content { flex: 1; padding: 20px; background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h4 class="text-center py-4">Estoque de EPIs</h4>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'estoque:retirada' %}">
+            <i class="bi bi-box-arrow-in-down"></i> Solicitar EPI
+        </a>
+    </li>
+    <a href="{% url 'estoque:dashboard' %}">🏠 Home</a>
+    <a href="{% url 'estoque:lista_produtos' %}">📦 Produtos</a>
+    <a href="{% url 'estoque:registrar_movimentacao' %}">🔄 Movimentar Estoque</a>
+    <a href="{% url 'estoque:exportar_excel' %}">📁 Exportar Excel</a>
+
+    {% if request.user.is_staff %}
+    <div class="card bg-warning text-dark m-3" style="max-width: 90%;">
+        <div class="card-header fw-bold">Aprovação de Retiradas</div>
+        <div class="card-body">
+            <h5 class="card-title">{{ pendentes }} pendente{{ pendentes|pluralize }}</h5>
+            <p class="card-text">Retiradas aguardando análise.</p>
+            <a href="{% url 'estoque:listar_retiradas' %}" class="btn btn-dark btn-sm w-100">Ver solicitações</a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'estoque:logout' %}">🚪 Sair</a>
+    {% else %}
+        <a href="{% url 'estoque:login' %}">🔐 Login</a>
+    {% endif %}
+</div>
+
+<div class="content">
+
+    <nav class="navbar navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Dashboard</span>
+            <span class="text-muted">Usuário: {{ user.username }}</span>
+        </div>
+    </nav>
+
+    <form method="get" class="row mb-4">
+        <div class="col-md-3">
+            <label for="data_inicio" class="form-label">Data Início</label>
+            <input type="date" name="data_inicio" id="data_inicio" value="{{ filtros.data_inicio }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label for="data_fim" class="form-label">Data Fim</label>
+            <input type="date" name="data_fim" id="data_fim" value="{{ filtros.data_fim }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label for="tipo" class="form-label">Tipo</label>
+            <select name="tipo" id="tipo" class="form-select">
+                <option value="">Todos</option>
+                <option value="E" {% if filtros.tipo == 'E' %}selected{% endif %}>Entradas</option>
+                <option value="S" {% if filtros.tipo == 'S' %}selected{% endif %}>Saídas</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">🔍 Filtrar</button>
+        </div>
+    </form>
+
+    <h4>📥 Entradas: {{ entradas }}</h4>
+    <h4>📤 Saídas: {{ saidas }}</h4>
+
+    <h5 class="mt-4">📦 Produtos mais movimentados</h5>
+    <ul class="list-group mb-4">
+        {% for p in produtos_movimentados %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ p.produto__nome }}
+                <span class="badge bg-primary rounded-pill">{{ p.total }} movimentações</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item">Nenhuma movimentação registrada ainda.</li>
+        {% endfor %}
+    </ul>
+
+    {% if produtos_criticos %}
+    <div class="alert alert-danger mt-4">
+        <strong>Atenção!</strong> Os seguintes produtos estão com estoque abaixo do mínimo:
+        <ul>
+            {% for produto in produtos_criticos %}
+                <li>{{ produto.nome }} (Estoque atual: {{ produto.estoque_fisico }} / Mínimo: {{ produto.estoque_minimo }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

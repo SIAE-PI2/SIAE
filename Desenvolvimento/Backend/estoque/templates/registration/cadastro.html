@@ -1,0 +1,52 @@
+{% extends "registration/base.html" %}
+{% load static %}
+
+{% block title %}Cadastrar Produto{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-xl-8">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h5 class="mb-0">Cadastro de Produto</h5>
+      </div>
+
+      <div class="card-body">
+        {% if messages %}
+          {% for m in messages %}
+            <div class="alert alert-{{ m.tags|default:'info' }} mb-3">{{ m }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="row g-3">
+            {% for field in form %}
+              <div class="col-md-6">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                  <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{% url 'estoque:lista_produtos' %}">Cancelar</a>
+            <button type="submit" class="btn btn-success">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

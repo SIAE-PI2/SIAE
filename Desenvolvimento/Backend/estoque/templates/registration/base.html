@@ -1,0 +1,61 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Estoque de EPIs{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap (ajuste se já incluir em outro lugar) -->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <style>
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background:#1f2937; /* cinza escuro */
+      color:#fff;
+    }
+    .sidebar a { color:#cbd5e1; text-decoration:none; }
+    .sidebar a.active, .sidebar a:hover { color:#fff; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar p-3">
+      <h4 class="mb-4">Estoque de EPIs</h4>
+
+      <nav class="d-flex flex-column gap-2">
+        {% if user.is_authenticated %}
+          <a class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+             href="{% url 'estoque:dashboard' %}">🏠 Home</a>
+          <a class="{% if request.resolver_match.url_name == 'lista_produtos' %}active{% endif %}"
+             href="{% url 'estoque:lista_produtos' %}">📦 Produtos</a>
+          <a class="{% if request.resolver_match.url_name == 'registrar_movimentacao' %}active{% endif %}"
+             href="{% url 'estoque:registrar_movimentacao' %}">📊 Movimentar Estoque</a>
+          <a href="{% url 'estoque:exportar_excel' %}">📄 Exportar Excel</a>
+          <hr class="border-secondary">
+          <a href="{% url 'logout' %}">🚪 Logout</a>
+        {% else %}
+          <!-- Deslogado: mostra só o login (e o que mais quiser deixar público) -->
+          <a class="{% if request.resolver_match.url_name == 'login' %}active{% endif %}"
+             href="{% url 'login' %}">🔐 Login</a>
+        {% endif %}
+      </nav>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="p-4">
+      <div class="d-flex justify-content-end mb-3 text-muted">
+        {% if user.is_authenticated %}Usuário: <strong class="ms-1">{{ request.user.username }}</strong>{% endif %}
+      </div>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
