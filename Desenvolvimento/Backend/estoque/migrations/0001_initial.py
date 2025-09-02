@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from decimal import Decimal
 
 
 class Migration(migrations.Migration):
@@ -19,7 +20,7 @@ class Migration(migrations.Migration):
                 ('nome', models.CharField(max_length=100)),
                 ('estoque_fisico', models.IntegerField()),
                 ('estoque_minimo', models.IntegerField(default=0)),
-                ('preco_unitario', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
+                ('preco_unitario', models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=10)),
             ],
         ),
         migrations.CreateModel(
