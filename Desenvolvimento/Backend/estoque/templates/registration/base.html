@@ -37,7 +37,10 @@
              href="{% url 'estoque:registrar_movimentacao' %}">📊 Movimentar Estoque</a>
           <a href="{% url 'estoque:exportar_excel' %}">📄 Exportar Excel</a>
           <hr class="border-secondary">
-          <a href="{% url 'logout' %}">🚪 Logout</a>
+          <form action="{% url 'logout' %}" method="post" style="display: inline;">
+              {% csrf_token %}
+              <a href="javascript:document.forms[0].submit()">🚪 Logout</a>
+          </form>
         {% else %}
           <!-- Deslogado: mostra só o login (e o que mais quiser deixar público) -->
           <a class="{% if request.resolver_match.url_name == 'login' %}active{% endif %}"
